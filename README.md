@@ -1,4 +1,4 @@
-# redis-locking-promise-memoize [![Build Status](https://secure.travis-ci.org/pwmckenna/node-redis-locking-promise-memoize.png?branch=master)](http://travis-ci.org/pwmckenna/node-redis-locking-promise-memoize)
+# redis-locking-promise-memoize [![Build Status](https://secure.travis-ci.org/pwmckenna/node-redis-locking-promise-memoize.png?branch=master)](http://travis-ci.org/pwmckenna/node-redis-locking-promise-memoizer)
 
 The best project ever.
 
