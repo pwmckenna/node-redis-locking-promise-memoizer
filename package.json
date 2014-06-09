@@ -1,0 +1,45 @@
+{
+  "name": "redis-locking-promise-memoize",
+  "description": "The best project ever.",
+  "version": "0.1.0",
+  "homepage": "https://github.com/pwmckenna/node-redis-locking-promise-memoize",
+  "author": {
+    "name": "Patrick Williams",
+    "email": "pwmckenna@gmail.com",
+    "url": "http://pwmckenna.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/pwmckenna/node-redis-locking-promise-memoize.git"
+  },
+  "bugs": {
+    "url": "https://github.com/pwmckenna/node-redis-locking-promise-memoize/issues"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/pwmckenna/node-redis-locking-promise-memoize/blob/master/LICENSE-MIT"
+    }
+  ],
+  "main": "lib/redis-locking-promise-memoize",
+  "engines": {
+    "node": ">= 0.8.0"
+  },
+  "scripts": {
+    "test": "grunt test"
+  },
+  "devDependencies": {
+    "grunt-contrib-jshint": "~0.6.4",
+    "grunt-contrib-watch": "~0.5.3",
+    "grunt": "~0.4.1",
+    "grunt-mocha-test": "~0.11.0",
+    "grunt-services": "0.0.2",
+    "sinon": "~1.10.2"
+  },
+  "keywords": [],
+  "dependencies": {
+    "redis": "~0.10.3",
+    "q": "~1.0.1",
+    "redis-lock": "0.0.8"
+  }
+}
