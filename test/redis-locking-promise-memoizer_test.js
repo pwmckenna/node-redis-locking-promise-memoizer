@@ -11,7 +11,7 @@ describe('memoize tests', function () {
         var callback = sinon.spy(function () {
             return EXTERNAL_RESOURCE_1;
         });
-        memoize(callback, 1000)().then(function (res) {
+        memoize(callback, 'key1', 1000)().then(function (res) {
             assert(callback.called);
             assert(res === EXTERNAL_RESOURCE_1);
         }).nodeify(done);
@@ -22,7 +22,7 @@ describe('memoize tests', function () {
         var callback = sinon.spy(function () {
             return EXTERNAL_RESOURCE_2;
         });
-        var memoizedFunction = memoize(callback, 1000);
+        var memoizedFunction = memoize(callback, 'key2', 1000);
         q.all([
             memoizedFunction(),
             memoizedFunction()
@@ -61,7 +61,7 @@ describe('memoize tests', function () {
         };
 
         var start = new Date();
-        deferredLoop(memoize(callback, MEMOIZE_TIMEOUT), 10000).then(function () {
+        deferredLoop(memoize(callback, 'key3', MEMOIZE_TIMEOUT), 10000).then(function () {
             var now = new Date();
             var delta = now.getTime() - start.getTime();
             // the timing isn't perfect, so if X time has passed, support either the floor or ceil of the expected number
@@ -76,9 +76,9 @@ describe('memoize tests', function () {
         });
 
         q.all([
-            memoize(callback, 1000)(),
-            memoize(callback, 1000)(),
-            memoize(callback, 1000)()
+            memoize(callback, 'key4.1', 1000)(),
+            memoize(callback, 'key4.2', 1000)(),
+            memoize(callback, 'key4.3', 1000)()
         ]).then(function () {
             assert(callback.calledThrice);
         }).nodeify(done);
