@@ -4,7 +4,7 @@
 
 Heavily inspired by [redis-memoizer](https://github.com/errorception/redis-memoizer), but with some key differences.
 
-* asdf
+* Promise based. Uses [Q](https://github.com/kriskowal/q) internally.
 * asdf
 * asdf
 
@@ -16,9 +16,9 @@ Wikipedia [explains it best](http://en.wikipedia.org/wiki/Memoization):
 ```javascript
 var memoize = require("redis-memoizer")();
 
-function someExpensiveOperation(arg1, arg2, done) {
+function someExpensiveOperation(arg1, arg2) {
 	// later...
-	done();
+	return Q.promise();
 }
 
 var memoized = memoize(someExpensiveOperation);
@@ -33,9 +33,9 @@ Redis effectively serves as a shared network-available cache for function calls.
 Lets say you are making a DB call that's rather expensive. Let's say you've wrapped the call into a `getUserProfile` function that looks as follows:
 
 ```javascript
-function getUserProfile(userId, done) {
+function getUserProfile(userId) {
 	// Go over to the DB, perform expensive call, get user's profile
-	done(err, userProfile);
+	return Q.resolve(userProfile);
 }
 ```
 
@@ -44,10 +44,10 @@ Let's say this call takes 500ms, which is unacceptably high, and you want to mak
 ```javascript
 var getMemoizedUserProfile = memoize(getUserProfile);
 
-getMemoizedUserProfile("user1", function(err, userProfile) {
+getMemoizedUserProfile("user1").then(function(userProfile) {
 	// First call. This will take some time.
 
-	getMemoizedUserProfile("user1", function(err, userProfile) {
+	getMemoizedUserProfile("user1").then(function(userProfile) {
 		// Second call. This will be blazingly fast.
 	});
 });
@@ -60,7 +60,7 @@ This can similarly be used for any network or disk bound async calls where you a
 
 ### Initialization
 ```javascript
-var memoize = require("redis-memoizer")(redisPort, redisHost, redisOptions);
+var memoize = require("redis-locking-promise-memoizer")(redisPort, redisHost, redisOptions);
 ```
 
 Initializes the module with redis' connection parameters. The params are passed along as-is to the [node-redis](https://github.com/mranney/node_redis#rediscreateclientport-host-options) module for connecting to redis.
@@ -85,9 +85,7 @@ Memoizes a promise returning function and returns it.
 
 ## Cache Stampedes
 
-Rather than protect against stampedes on redis, as redis-memoizer does, this module uses locking to ensure that only one instance of 
-
-This module makes some effort to minimize the effect of a [cache stampede](http://en.wikipedia.org/wiki/Cache_stampede). 
+Rather than protect against redis [cache stampedes](http://en.wikipedia.org/wiki/Cache_stampede), as redis-memoizer does, this module uses locking to ensure that only one instance of the memoized function is called across all instances of your program. An in-memory memoizer is recommended to reduce the load on redis.
 
 ## Installation
 
