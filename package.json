@@ -1,8 +1,8 @@
 {
-  "name": "redis-locking-promise-memoize",
-  "description": "The best project ever.",
+  "name": "redis-locking-promise-memoizer",
+  "description": "A promise based asynchronous function memoizer for node.js, using redis as the memo store.",
   "version": "0.1.0",
-  "homepage": "https://github.com/pwmckenna/node-redis-locking-promise-memoize",
+  "homepage": "https://github.com/pwmckenna/node-redis-locking-promise-memoizer",
   "author": {
     "name": "Patrick Williams",
     "email": "pwmckenna@gmail.com",
@@ -10,18 +10,18 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/pwmckenna/node-redis-locking-promise-memoize.git"
+    "url": "git://github.com/pwmckenna/node-redis-locking-promise-memoizer.git"
   },
   "bugs": {
-    "url": "https://github.com/pwmckenna/node-redis-locking-promise-memoize/issues"
+    "url": "https://github.com/pwmckenna/node-redis-locking-promise-memoizer/issues"
   },
   "licenses": [
     {
       "type": "MIT",
-      "url": "https://github.com/pwmckenna/node-redis-locking-promise-memoize/blob/master/LICENSE-MIT"
+      "url": "https://github.com/pwmckenna/node-redis-locking-promise-memoizer/blob/master/LICENSE-MIT"
     }
   ],
-  "main": "lib/redis-locking-promise-memoize",
+  "main": "lib/redis-locking-promise-memoizer",
   "engines": {
     "node": ">= 0.8.0"
   },
