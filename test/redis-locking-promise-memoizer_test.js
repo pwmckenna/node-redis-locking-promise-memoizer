@@ -8,30 +8,26 @@ var memoize = require('../lib/redis-locking-promise-memoizer')();
 describe('memoize tests', function () {
     it('should call the function', function (done) {
         var EXTERNAL_RESOURCE_1 = 'external result 1';
-        var spy = sinon.spy();
-        var callback = function () {
-            spy();
+        var callback = sinon.spy(function () {
             return EXTERNAL_RESOURCE_1;
-        };
+        });
         memoize(callback, 1000)().then(function (res) {
-            assert(spy.calledOnce);
+            assert(callback.called);
             assert(res === EXTERNAL_RESOURCE_1);
         }).nodeify(done);
     });
 
     it('should call the function only once', function (done) {
         var EXTERNAL_RESOURCE_2 = 'external result 2';
-        var spy = sinon.spy();
-        var callback = function () {
-            spy();
+        var callback = sinon.spy(function () {
             return EXTERNAL_RESOURCE_2;
-        };
+        });
         var memoizedFunction = memoize(callback, 1000);
         q.all([
             memoizedFunction(),
             memoizedFunction()
         ]).spread(function (res1, res2) {
-            assert(spy.calledOnce);
+            assert(callback.calledOnce);
             assert(res1 === EXTERNAL_RESOURCE_2);
             assert(res2 === EXTERNAL_RESOURCE_2);
         }).nodeify(done);
@@ -41,10 +37,9 @@ describe('memoize tests', function () {
         this.timeout(30000);
         var EXTERNAL_RESOURCE_3 = 'external result 3';
         var MEMOIZE_TIMEOUT = 100;
-        var spy = sinon.spy();
         var last;
         var externalCallCount = 0;
-        var callback = function () {
+        var callback = sinon.spy(function () {
             ++externalCallCount;
             var now = new Date();
             if (last) {
@@ -52,9 +47,8 @@ describe('memoize tests', function () {
                 assert(delta > MEMOIZE_TIMEOUT);
             }
             last = now;
-            spy();
             return EXTERNAL_RESOURCE_3;
-        };
+        });
 
         var deferredLoop = function (func, count) {
             if (count > 0) {
@@ -74,4 +68,19 @@ describe('memoize tests', function () {
             assert(externalCallCount === Math.floor(delta / MEMOIZE_TIMEOUT) || externalCallCount === Math.ceil(delta / MEMOIZE_TIMEOUT));
         }).nodeify(done);
     });
+
+    it('should cache multiple memoized versions of a function seperately', function (done) {
+        var EXTERNAL_RESOURCE_4 = 'external result 4';
+        var callback = sinon.spy(function () {
+            return EXTERNAL_RESOURCE_4;
+        });
+
+        q.all([
+            memoize(callback, 1000)(),
+            memoize(callback, 1000)(),
+            memoize(callback, 1000)()
+        ]).then(function () {
+            assert(callback.calledThrice);
+        }).nodeify(done);
+    })
 });
