@@ -5,7 +5,7 @@
 Heavily inspired by [redis-memoizer](https://github.com/errorception/redis-memoizer), but with some key differences.
 
 * Promise based. Expects the function to return a promise, and the memoized function returns a promise. Uses [Q](https://github.com/kriskowal/q) internally.
-* Rather than trying to generate redis keys based on the input function (which can collide for functions in different contexts), the caller must explicitly provide a base value for keys to be generated based on.
+* Rather than trying to generate redis keys based on the input function (which can collide for identical functions in different contexts), the caller must explicitly provide a base value for keys to be generated based on.
 * Locking. This library doesn't try to mitigate cache stampedes (which can be addressed by combining this library with an in-memory memoizer), instead focusing on reducing the calls to the original function by introducing locking.
 
 A promise based asynchronous function memoizer for node.js, using redis as the memo store. Memos expire after a specified timeout. Great as a drop-in performance optimization / caching layer for heavy asynchronous functions.
