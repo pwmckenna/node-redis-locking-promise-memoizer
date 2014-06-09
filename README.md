@@ -87,6 +87,16 @@ Memoizes a promise returning function and returns it.
 
 Rather than protect against redis [cache stampedes](http://en.wikipedia.org/wiki/Cache_stampede), as redis-memoizer does, this module uses locking to ensure that only one instance of the memoized function is called across all instances of your program. An in-memory memoizer is recommended to reduce the load on redis.
 
+In-Memory/Redis memoizing combo example:
+```js
+var localMemoize = require('memoizee');
+var redisMemoize = require('redis-locking-promise-memoizer');
+
+var memoize = function (fn, key, ttl) {
+    return localMemoize(redisMemoize(fn, key, ttl), { maxAge: ttl });
+};
+```
+
 ## Installation
 
 Use npm to install redis-locking-promise=memoizer:
