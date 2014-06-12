@@ -3,7 +3,9 @@
 var sinon = require('sinon');
 var assert = require('assert');
 var q = require('q');
-var memoize = require('../lib/redis-locking-promise-memoizer')();
+var redis = require('redis');
+var client = redis.createClient();
+var memoize = require('../lib/redis-locking-promise-memoizer')(client);
 
 describe('memoize tests', function () {
     it('should call the function', function (done) {
