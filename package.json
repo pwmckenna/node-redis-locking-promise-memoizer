@@ -1,7 +1,7 @@
 {
   "name": "redis-locking-promise-memoizer",
   "description": "A promise based asynchronous function memoizer for node.js, using redis as the memo store.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "homepage": "https://github.com/pwmckenna/node-redis-locking-promise-memoizer",
   "author": {
     "name": "Patrick Williams",
