@@ -28,7 +28,9 @@ module.exports = function(grunt) {
                 node: true,
                 globals: {
                     describe: false,
-                    it: false
+                    it: false,
+                    beforeEach: false,
+                    afterEach: false
                 }
             },
             gruntfile: {
@@ -64,7 +66,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-services');
 
     // Default task.
-    grunt.registerTask('test', ['startRedis', 'mochaTest', 'stopRedis']);
+    grunt.registerTask('test', ['jshint', 'startRedis', 'mochaTest', 'stopRedis']);
     grunt.registerTask('default', ['jshint', 'test']);
 
 };
