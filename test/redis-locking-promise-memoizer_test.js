@@ -52,7 +52,9 @@ describe('memoize tests', function () {
         q.all([
             memoizedFunction(),
             memoizedFunction()
-        ]).spread(function () {
+        ]).spread(function (res1, res2) {
+            assert(typeof res1 === 'undefined');
+            assert(typeof res2 === 'undefined');
             assert(callback.calledOnce);
         }).nodeify(done);
     });
@@ -130,6 +132,12 @@ describe('memoize tests', function () {
             memoize(callback, 'key3', 1000)()
         ]).then(function () {
             assert(callback.calledThrice);
+        }).then(function () {
+            var defer = q.defer();
+            client.dbsize(defer.makeNodeResolver());
+            return defer.promise;
+        }).then(function (count) {
+            assert(count === 3);
         }).nodeify(done);
     });
 
@@ -147,6 +155,42 @@ describe('memoize tests', function () {
             assert(callback.calledOnce);
             assert(res === EXTERNAL_RESOURCE);
             assert(callback.returnValues[0] === EXTERNAL_RESOURCE);
+        }).then(function () {
+            var defer = q.defer();
+            client.dbsize(defer.makeNodeResolver());
+            return defer.promise;
+        }).then(function (count) {
+            assert(count === 1);
+        }).nodeify(done);
+    });
+
+    it('should store results in different redis keys for differing key/arg combinations', function (done) {
+        var callback1 = memoize(function () {}, 'key1', 1000);
+        var callback2 = memoize(function () {}, 'key2', 1000);
+        q.all([
+            callback1(1),
+            callback1(2),
+            callback1(3),
+            callback2(1),
+            callback2(2),
+            callback2(3)
+        ]).then(function () {
+            var defer = q.defer();
+            client.dbsize(defer.makeNodeResolver());
+            return defer.promise;
+        }).then(function (count) {
+            assert(count === 6);
+        }).nodeify(done);
+    });
+
+    it('should treat undefined and null return values as different successful results', function (done) {
+        var callback1 = memoize(function () {}, 'key1', 1000);
+        var callback2 = memoize(function () { return null; }, 'key2', 1000);
+        q.all([
+            callback1(),
+            callback2()
+        ]).spread(function (res1, res2) {
+            assert(res1 !== res2);
         }).nodeify(done);
     });
 });
