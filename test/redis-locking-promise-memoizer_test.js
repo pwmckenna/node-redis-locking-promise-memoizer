@@ -9,7 +9,6 @@ var client = redis.createClient();
 var memoize = require('../lib/redis-locking-promise-memoizer')(client);
 
 var EXTERNAL_RESOURCE = 'external result';
-var ERROR_MESSAGE = 'error message';
 var KEY = 'key';
 
 describe('memoize tests', function () {
@@ -24,6 +23,7 @@ describe('memoize tests', function () {
         });
         memoize(callback, KEY, 1000)().then(function (res) {
             assert(callback.called);
+            assert(callback.returnValues[0] === EXTERNAL_RESOURCE);
             assert(res === EXTERNAL_RESOURCE);
         }).nodeify(done);
     });
@@ -38,6 +38,7 @@ describe('memoize tests', function () {
             memoizedFunction()
         ]).spread(function (res1, res2) {
             assert(callback.calledOnce);
+            assert(callback.returnValues[0] === EXTERNAL_RESOURCE);
             assert(res1 === EXTERNAL_RESOURCE);
             assert(res2 === EXTERNAL_RESOURCE);
         }).nodeify(done);
@@ -45,7 +46,7 @@ describe('memoize tests', function () {
 
     it('should call the function once even if it resolves with undefined', function (done) {
         var callback = sinon.spy(function () {
-            return q.resolve(null);
+            return q.resolve();
         });
         var memoizedFunction = memoize(callback, KEY, 1000);
         q.all([
@@ -57,17 +58,28 @@ describe('memoize tests', function () {
     });
 
     it('should call the function repeatedly if it throws an exception', function (done) {
+        var count = 0;
         var callback = sinon.spy(function () {
-            throw new Error(ERROR_MESSAGE);
+            throw count++;
         });
         var memoizedFunction = memoize(callback, KEY, 1000);
         q.allSettled([
             memoizedFunction(),
+            memoizedFunction(),
+            memoizedFunction(),
+            memoizedFunction(),
+            memoizedFunction(),
+            memoizedFunction(),
+            memoizedFunction(),
+            memoizedFunction(),
+            memoizedFunction(),
             memoizedFunction()
-        ]).spread(function (defer1, defer2) {
-            assert(defer1.state === 'rejected', 'defer1.state');
-            assert(defer2.state === 'rejected', 'defer2.state');
-            assert(defer1.reason.msg === defer2.reason.msg);
+        ]).then(function (defers) {
+            for (var i = 0; i < defers.length; ++i) {
+                var defer = defers[i];
+                assert(defer.state === 'rejected');
+                assert(defer.reason === i);
+            }
         }).nodeify(done);
     });
 
@@ -118,6 +130,23 @@ describe('memoize tests', function () {
             memoize(callback, 'key3', 1000)()
         ]).then(function () {
             assert(callback.calledThrice);
+        }).nodeify(done);
+    });
+
+    it('an unresolved function cannot hold the lock indefinitely', function (done) {
+        this.timeout(6000);
+        memoize(function () {
+            return q.defer().promise;
+        }, KEY, 1000)();
+
+        var callback = sinon.spy(function () {
+            return EXTERNAL_RESOURCE;
+        });
+
+        memoize(callback, KEY, 1000)().then(function (res) {
+            assert(callback.calledOnce);
+            assert(res === EXTERNAL_RESOURCE);
+            assert(callback.returnValues[0] === EXTERNAL_RESOURCE);
         }).nodeify(done);
     });
 });
