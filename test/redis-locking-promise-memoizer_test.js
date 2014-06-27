@@ -7,6 +7,7 @@ var redis = require('redis');
 // redis.debug_mode = true;
 var client = redis.createClient();
 var memoize = require('../lib/redis-locking-promise-memoizer')(client);
+var spawn = require('child_process').spawn;
 
 var EXTERNAL_RESOURCE = 'external result';
 var KEY = 'key';
@@ -192,5 +193,38 @@ describe('memoize tests', function () {
         ]).spread(function (res1, res2) {
             assert(res1 !== res2);
         }).nodeify(done);
+    });
+
+    it('should only call the original function in one process and get that value in another', function (done) {
+        // create a memoize function and call it so that external processes get the cached value
+        var expectedReturnValue = 42;
+        memoize(function () {
+            return expectedReturnValue;
+        }, 'key', 5000)();
+        var processFunction = function () {
+            var redis = require('redis');
+            var client = redis.createClient();
+            // this path is relative to the directory that the grunt file is in
+            var memoize = require('./lib/redis-locking-promise-memoizer')(client);
+            var memoized = memoize(function () {
+                return 1;
+            }, 'key', 5000);
+            memoized().then(function (res) {
+                process.exit(res);
+            });
+        };
+        var cmd = '(' + processFunction.toString() + ')()';
+
+        var ps = spawn('node', ['-e', cmd], {
+            stdio: 'inherit'
+        });
+
+        ps.on('close', function (code) {
+            if (code === expectedReturnValue) {
+                done();
+            } else {
+                done(new Error('incorrect value returned by spawned process - ' + code));
+            }
+        });
     });
 });
