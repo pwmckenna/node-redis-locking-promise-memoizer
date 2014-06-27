@@ -21,7 +21,8 @@ function someExpensiveOperation(arg1, arg2) {
 	return Q.promise();
 }
 
-var memoized = memoize(someExpensiveOperation);
+// only do that expensive thing once per minute
+var memoized = memoize(someExpensiveOperation, 'some key', 60 * 1000);
 ```
 
 Now, calls to `memoized` will have the same effect as calling `someExpensiveOperation`, except it will be much faster. The results of the first call are stored in redis and then looked up for subsequent calls.
@@ -42,7 +43,8 @@ function getUserProfile(userId) {
 Let's say this call takes 500ms, which is unacceptably high, and you want to make it faster, and don't care about the fact that the value of `userProfile` might be slightly outdated (until the cache timeout is hit in redis). You could simply do the following:
 
 ```javascript
-var getMemoizedUserProfile = memoize(getUserProfile);
+// only check for user changes once per hour
+var getMemoizedUserProfile = memoize(getUserProfile, 'user profile', 60 * 60 * 1000);
 
 getMemoizedUserProfile("user1").then(function(userProfile) {
 	// First call. This will take some time.
