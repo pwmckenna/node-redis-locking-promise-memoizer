@@ -40,6 +40,6 @@
   "keywords": [],
   "dependencies": {
     "q": "~1.0.1",
-    "redis-lock": "0.0.8"
+    "redis-lock-q": "0.0.1"
   }
 }
