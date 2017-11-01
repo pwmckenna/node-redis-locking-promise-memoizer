@@ -62,10 +62,10 @@ This can similarly be used for any network or disk bound async calls where you a
 
 ### Initialization
 ```javascript
-var memoize = require("redis-locking-promise-memoizer")(redisPort, redisHost, redisOptions);
+var memoize = require("redis-locking-promise-memoizer")(redisClient);
 ```
 
-Initializes the module with redis' connection parameters. The params are passed along as-is to the [node-redis](https://github.com/mranney/node_redis#rediscreateclientport-host-options) module for connecting to redis.
+Initializes the module with the provided Redis client instance. If you require middleware to provide services such as namespacing, you may pass a wrapped instance so long as the interface is not modified.
 
 ### memoize(fn, key, timeout)
 
